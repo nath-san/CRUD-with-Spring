@@ -13,6 +13,9 @@ public class Person {
 		this.email = email;
 		this.birthDate = birthDate;
 	}
+	public Person() {
+		// TODO Auto-generated constructor stub
+	}
 	public String getBirthDate() {
 		return birthDate;
 	}

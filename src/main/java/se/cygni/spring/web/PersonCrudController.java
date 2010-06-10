@@ -19,33 +19,77 @@ public class PersonCrudController {
 	@Autowired
 	private PersonDao personDao;
 	
+	/**
+	 * 
+	 * Since no value is set, this method is called when the url "/people/" is typed.
+	 * @return personList
+	 */
 	@RequestMapping(method=RequestMethod.GET)
 	public Collection<Person> allPeople(){
-		return personDao.findAll();
+		return personDao.findAll();	
 	}
 	
+	/**
+	 * 
+	 * This method is called when the url "/people/something(except new) is typed. 
+	 * With @PathVariable we get the id from the url and can use this inside the method. 
+	 * @return a ModelAndView object since we want to return both a view ("/people/show") which is the the view that is showed, and, in this case, a Person object. The Person object can be accessed in the view with the name "person"
+	 */
 	@RequestMapping(value = "/{id}", method=RequestMethod.GET)
 	public ModelAndView findPerson(@PathVariable("id")long id){
 		return new ModelAndView("/people/show", "person", personDao.findById(id));
 	}
 	
-	@RequestMapping("/new")
-	public void showNewForm(){
-		
+	/**
+	 * 
+	 * This method is called when the url "/people/new" is typed. Since we don't return anything, the view "/new" is showed. 
+	 */
+	@RequestMapping(value = "/new", method=RequestMethod.GET)
+	public Person showNewForm(){
+		return new Person();
 	}
 	
+	/**
+	 * This method is called when a POST is made to the url "/people" (in this case when a new person is created). 
+	 * All params are collected from the form in the "new-view". 
+	 * A new person is created. 
+	 * @return a String which means that the view "/people/id" is showed.
+	 */
 	@RequestMapping(method=RequestMethod.POST)
-	public String createNewPerson(@RequestParam("firstName") String firstName, @RequestParam("surName") String lastName, @RequestParam("email") String email, @RequestParam("birthDate") String birthDate){
-		Person person = new Person(firstName, lastName, email, birthDate);
-		personDao.create(person);
-		return "redirect:/people/" +person.getId();
+	public ModelAndView createNewPerson(Person person){
+		if(checkInput(person.getFirstName(), person.getSurName(), person.getEmail(), person.getBirthDate())){
+			personDao.create(person);
+			return new ModelAndView("redirect:/people/" +person.getId());	
+		}
+		else{
+			return new ModelAndView("/people/new", "person", person);		
+		}
 	}
 	
+	public boolean checkInput(String firstName, String surName, String email, String birthDate){
+		if(firstName.length()<3 || surName.length()<3 || email.length()<5 || !email.contains("@") || birthDate.length() < 8){
+			return false;
+		}
+		else{
+			return true;
+	
+		}
+	}
+		
+	/**
+	 * This method is called when the url "/people/id/update" is typed.
+	 * @return a ModelAndView object where we specify the view "/people/update" and sends a Person object. 
+	 */
 	@RequestMapping("/{id}/update")
 	public ModelAndView updatePerson(@PathVariable("id") long id){
 		return new ModelAndView("/people/update", "person", personDao.findById(id));
 	}
 	
+	/**
+	 * This method is called when a PUT action is made to the url "/people/id".
+	 * We collect the params from a form, find the Person and update it. 
+	 * @return a String which means that the view "/people/id" is showed.
+	 */
 	@RequestMapping(value="/{id}", method=RequestMethod.PUT)
 	public String updatePut(
 			@PathVariable("id") long id,
@@ -62,6 +106,12 @@ public class PersonCrudController {
 		return "redirect:/people/" +person.getId();
 	}
 	
+
+	@RequestMapping(value="/{id}", method=RequestMethod.DELETE)
+	public String deletePerson(@PathVariable("id") long id){
+		personDao.delete(personDao.findById(id));
+		return "redirect:/people";
+	}
 	
 }
 
