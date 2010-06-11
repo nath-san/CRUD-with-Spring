@@ -12,6 +12,14 @@
 		<org.slf4j.version>1.5.10</org.slf4j.version>
 	</properties>
 	<dependencies>
+	
+<!--	Sitemesh-->
+	<dependency>
+    	<groupId>org.sitemesh</groupId>
+    	<artifactId>sitemesh</artifactId>
+    	<version>3.0-alpha-1</version>
+	</dependency>
+	
 
 		<!--  Spring -->
 		<dependency>
