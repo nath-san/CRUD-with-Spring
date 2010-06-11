@@ -4,10 +4,10 @@ import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import se.cygni.spring.dao.PersonDao;
@@ -53,29 +53,68 @@ public class PersonCrudController {
 	 * This method is called when a POST is made to the url "/people" (in this case when a new person is created). 
 	 * All params are collected from the form in the "new-view". 
 	 * A new person is created. 
-	 * @return a String which means that the view "/people/id" is showed.
+	 * @return a ModelAndView object which means that the view "/people/id" is showed when all fields are correct, and "people/new" if not.
 	 */
 	@RequestMapping(method=RequestMethod.POST)
-	public ModelAndView createNewPerson(Person person){
-		if(checkInput(person.getFirstName(), person.getSurName(), person.getEmail(), person.getBirthDate())){
+	public ModelAndView createNewPerson(Person person, Errors errors){
+		if(checkFirstName(person.getFirstName()) && 
+			checkSurName(person.getSurName()) &&
+			checkEmail(person.getEmail()) &&
+			checkBirthDate(person.getBirthDate()))
+		{
 			personDao.create(person);
 			return new ModelAndView("redirect:/people/" +person.getId());	
 		}
 		else{
+			if(!checkFirstName(person.getFirstName())){
+				errors.rejectValue("firstName", "firstNameError", "First name must be more than two characters");
+			}
+			if(!checkSurName(person.getSurName())){
+				errors.rejectValue("surName", "surNameError", "Surname must be more than two characters");
+			}
+			if(!checkEmail(person.getEmail())){
+				errors.rejectValue("email", "emailError", "Email must contain @ and be more than four characters");
+			}
+			if(!checkBirthDate(person.getBirthDate())){
+				errors.rejectValue("birthDate", "birthDateError", "Birth date must be eight digits");
+			}
 			return new ModelAndView("/people/new", "person", person);		
 		}
 	}
 	
-	public boolean checkInput(String firstName, String surName, String email, String birthDate){
-		if(firstName.length()<3 || surName.length()<3 || email.length()<5 || !email.contains("@") || birthDate.length() < 8){
+	public boolean checkFirstName(String firstName){
+		if(firstName.length()<3){ 
 			return false;
 		}
-		else{
+		else
 			return true;
+	}
 	
+	public boolean checkSurName(String surName){
+		if(surName.length()<3){
+			return false;
 		}
+		else
+			return true;
+	}
+	
+	public boolean checkEmail(String email){
+		if(email.length()<5 || !email.contains("@")){
+			return false;
+		}
+		else
+			return true;
 	}
 		
+	public boolean checkBirthDate(String birthDate){
+		if(birthDate.length()!=10){
+			return false;
+		}
+		else
+			return true;
+	}
+	
+
 	/**
 	 * This method is called when the url "/people/id/update" is typed.
 	 * @return a ModelAndView object where we specify the view "/people/update" and sends a Person object. 
@@ -87,23 +126,32 @@ public class PersonCrudController {
 	
 	/**
 	 * This method is called when a PUT action is made to the url "/people/id".
-	 * We collect the params from a form, find the Person and update it. 
 	 * @return a String which means that the view "/people/id" is showed.
 	 */
 	@RequestMapping(value="/{id}", method=RequestMethod.PUT)
-	public String updatePut(
-			@PathVariable("id") long id,
-			@RequestParam("firstName") String firstName, 
-			@RequestParam("surName") String surName, 
-			@RequestParam("email") String email, 
-			@RequestParam("birthDate") String birthDate){
-		Person person = personDao.findById(id);
-		person.setFirstName(firstName);
-		person.setSurName(surName);
-		person.setEmail(email);
-		person.setBirthDate(birthDate);
-		personDao.update(person);
-		return "redirect:/people/" +person.getId();
+	public ModelAndView updatePut(@PathVariable("id") long id, Person person, Errors errors){
+		if(checkFirstName(person.getFirstName()) && 
+				checkSurName(person.getSurName()) &&
+				checkEmail(person.getEmail()) &&
+				checkBirthDate(person.getBirthDate())){
+			personDao.update(person);
+			return new ModelAndView("redirect:/people/" +person.getId());
+		}
+		else{
+			if(!checkFirstName(person.getFirstName())){
+				errors.rejectValue("firstName", "firstNameError", "First name must be more than two characters");
+			}
+			if(!checkSurName(person.getSurName())){
+				errors.rejectValue("surName", "surNameError", "Surname must be more than two characters");
+			}
+			if(!checkEmail(person.getEmail())){
+				errors.rejectValue("email", "emailError", "Email must contain @ and be more than four characters");
+			}
+			if(!checkBirthDate(person.getBirthDate())){
+				errors.rejectValue("birthDate", "birthDateError", "Birth date must be eight digits");
+			}
+			return new ModelAndView("/people/update", "person", person);		
+		}
 	}
 	
 

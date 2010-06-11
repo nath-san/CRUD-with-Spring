@@ -14,13 +14,20 @@
 <c:url value="/people/${person.id}" var="personUrl"/>
 
 <form:form commandName="person" action="${personUrl}" method="put">
-
-	<form:input path="firstName" /><br/>
+	First name: 
+	<form:errors path="firstName" style="color:red;"/><br/>
+	<form:input path="firstName"/><br/>
+	Surname: 
+	<form:errors path="surName" style="color:red;"/><br/>
 	<form:input path="surName"/><br/>
+	Email:
+	<form:errors path="email" style="color:red;"/><br/> 
 	<form:input path="email"/><br/>
+	Birth date:
+	<form:errors path="birthDate" style="color:red;"/><br/> 
 	<form:input path="birthDate"/><br/>
+	<form:hidden path="id"/>
 	<input type="submit" value="Update person"/>
-
 </form:form>
 
 </body>

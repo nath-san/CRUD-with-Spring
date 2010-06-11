@@ -1,5 +1,6 @@
 package se.cygni.spring.domain;
 
+
 public class Person {
 	private String firstName;
 	private String surName;

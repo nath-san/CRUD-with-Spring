@@ -9,7 +9,10 @@
 </head>
 <body>
 
-<h1>Person: ${person.firstName} ${person.surName}</h1>
+<h1>Person:</h1> 
+${person.firstName} ${person.surName}<br/>
+${person.email}<br/>
+${person.birthDate}<br/>
 <c:url value="/people" var="peopleUrl"/>
 <c:url value="/people/${person.id}/update" var="updateUrl"/>
 <a href="${peopleUrl}">All people</a>
